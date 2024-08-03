@@ -1,0 +1,73 @@
+<% content_for :javascript do %>
+  <%#= javascript_include_tag 'application_details/index' %>
+  <%= stylesheet_link_tag 'main' %>
+<% end %>
+
+<!DOCTYPE html>
+<html>
+<head>
+  <title>SkyCast.com</title>
+</head>
+<body>
+  <div class="main text-center animate__animated animate__fadeIn">
+    <h1 class="animate__animated animate__bounceIn">
+      <%= image_tag 'season.png', class: 'icon' %> SkyCast.com
+    </h1> 
+
+    <div class="form">
+      <%= form_with url: "/weather/get_weather", method: :get, local: true do |form| %>
+        <%= form.text_field :city, class: 'form-control', placeholder: 'Search your city name' %>
+        <%= form.submit "Get Weather", class: 'btn btn-info' %>
+      <% end %>
+    </div>
+    <div class="loader">
+      <div class="spinner-border text-primary" role="status">
+        <span class="sr-only"></span>
+      </div>
+    </div>
+    <div class="error-message">
+      Please enter a valid city name.
+    </div>
+  </div>
+
+  <% if @weather_data %>
+    <div class="main weather-info animate__animated animate__fadeInUp">
+      <h1>Weather in <%= @weather_data["name"] || 'Updating...' %>, <%= @weather_data["sys"]["country"] || 'Updating...' %></h1>
+      <p><strong>Coordinates:</strong> Latitude: <%= @weather_data["coord"]["lat"] || 'Updating...' %>, Longitude: <%= @weather_data["coord"]["lon"] || 'Updating...' %></p>
+      <p><strong>Temperature:</strong> <%= @weather_data["main"]["temp"] || 'Updating...' %>°C (Feels like: <%= @weather_data["main"]["feels_like"] || 'Updating...' %>°C)</p>
+      <p><strong>Weather:</strong> <%= @weather_data["weather"][0]["main"] || 'Updating...' %> - <%= @weather_data["weather"][0]["description"] || 'Updating...' %></p>
+      <p><strong>Humidity:</strong> <%= @weather_data["main"]["humidity"] || 'Updating...' %>%</p>
+      <p><strong>Pressure:</strong> <%= @weather_data["main"]["pressure"] || 'Updating...' %> hPa</p>
+      <p><strong>Visibility:</strong> <%= @weather_data["visibility"] || 'Updating...' %> meters</p>
+      <p><strong>Wind:</strong> Speed: <%= @weather_data["wind"]["speed"] || 'Updating...' %> m/s, Direction: <%= @weather_data["wind"]["deg"] || 'Updating...' %>°</p>
+      <p><strong>Rain:</strong> <%= @weather_data["rain"] ? @weather_data["rain"]["1h"] : 'Updating...' %> mm in the last hour</p>
+      <p><strong>Cloudiness:</strong> <%= @weather_data["clouds"]["all"] || 'Updating...' %>%</p>
+      <p><strong>Sunrise:</strong> <%= @weather_data["sys"]["sunrise"] ? Time.at(@weather_data["sys"]["sunrise"]).strftime("%I:%M:%S %p") : 'Updating...' %></p>
+      <p><strong>Sunset:</strong> <%= @weather_data["sys"]["sunset"] ? Time.at(@weather_data["sys"]["sunset"]).strftime("%I:%M:%S %p") : 'Updating...' %></p>
+    </div>
+  <% end %>
+
+  <div class="footer">
+    <p>&copy; 2024 SkyCast.com</p>
+  </div>
+  <script>
+    new WOW().init();
+
+    $(document).ready(function() {
+      $('form').on('submit', function() {
+        $('.loader').show();
+        $('.weather-info').hide();
+        $('.error-message').hide();
+      });
+
+      <% if @weather_data %>
+        $('.weather-info').fadeIn(1000);
+        $('.loader').hide();
+      <% else %>
+        $('.error-message').show();
+        $('.loader').hide();
+      <% end %>
+    });
+  </script>
+</body>
+</html>
